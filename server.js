@@ -2,11 +2,11 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var remoteServer = 'http://localhost:2015';
-var port = 80;
+var remoteServer = 'http://localhost:3000';
+var port = 8888;
 var c_io = require('socket.io-client')(remoteServer);
-var eventsListening = [ 'auth.approved', 'auth.rejected', 's3.buckets' ];
-var eventsEmitting = [ 'auth.signup', 'auth.signin', 'auth.logoff', 's3.list' ];
+var eventsListening = [ 'hello', 'test'];
+var eventsEmitting = [ 'hello' , 'test'];
 
 
 app.get('/', function(req, res) {
@@ -26,9 +26,11 @@ http.listen(port, function(){
         // For each new connection, register & un-register to events
         for (var key in eventsListening) {
             var event = eventsListening[key];
-            c_io.on(event, function(response) {
-                socket.emit(event, response);
-            });
+           (function(event){
+                c_io.on(event, function(response) {
+                    socket.emit(event, response);
+                });
+            })(event);
         }
 
         socket.on('disconnect', function() {
