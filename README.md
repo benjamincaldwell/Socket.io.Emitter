@@ -14,4 +14,6 @@ At the moment
 
 #Listening to all socket.io eventsEmitting
 If eventListening array includes '*', all events will be displayed:
+```javascript
 var eventsListening = ['*'];
+```
