@@ -11,3 +11,7 @@ At the moment
 *serverPath* - Server path to bind to.
 3. Deploy * run on a server of your choice.<br/>
 4. Enjoy
+
+#Listening to all socket.io eventsEmitting
+If eventListening array includes '*', all events will be displayed:
+var eventsListening = ['*'];

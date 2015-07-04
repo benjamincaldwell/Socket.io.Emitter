@@ -1,3 +1,4 @@
+var util = require("util");
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -5,9 +6,8 @@ var io = require('socket.io')(http);
 var remoteServer = 'http://localhost:3000';
 var port = 8888;
 var c_io = require('socket.io-client')(remoteServer);
-var eventsListening = [ 'hello', 'test'];
+var eventsListening = [ '*'];
 var eventsEmitting = [ 'hello' , 'test'];
-
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html');
@@ -24,13 +24,22 @@ http.listen(port, function(){
     io.on('connection', function(socket){
 
         // For each new connection, register & un-register to events
-        for (var key in eventsListening) {
-            var event = eventsListening[key];
-           (function(event){
-                c_io.on(event, function(response) {
-                    socket.emit(event, response);
-                });
-            })(event);
+        if (eventsListening.indexOf('*') >= 0){
+            var onevent = c_io.onevent;
+            c_io.onevent = function (packet) {
+                var args = packet.data || [];
+                console.log (util.inspect(args, false, null))
+                socket.emit(args[0], args[1]);
+            };
+        } else {
+            for (var key in eventsListening) {
+                var event = eventsListening[key];
+                (function(event){
+                    c_io.on(event, function(response) {
+                        socket.emit(event, response);
+                    });
+                })(event);
+            }
         }
 
         socket.on('disconnect', function() {

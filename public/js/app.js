@@ -85,17 +85,32 @@ emitter.factory('Emitter', [function() {
             });
         }
 
+        function registerAllEvents(){
+            var onevent = socket.onevent;
+            socket.onevent = function (packet) {
+                var args = packet.data || [];
+                var event = args[0];
+                var response = args[1];
+                onevent.call (this, packet);    // original call
+                self.eventsCacheRecieved.push({ name: event, payload: response, time: getCurrentTime() });
+                eventRecievedCallback(response);
+                // emit.apply   (this, ["*"].concat(args));      // additional call to catch-all
+            };
+        }
+
         socket.on('connect', function() {
             self.connected = true;
 
             socket.on('list.listening.res', function(data) {
                 self.eventsListening = data;
-
-                for (var key in self.eventsListening) {
-                    var event = self.eventsListening[key];
-                    registerEvent(event)
+                if (self.eventsListening.indexOf('*') >= 0){
+                    registerAllEvents();
+                } else {
+                    for (var key in self.eventsListening) {
+                        var event = self.eventsListening[key];
+                        registerEvent(event)
+                    }
                 }
-
                 socket.off('list.listening.res');
             })
 
