@@ -1,10 +1,11 @@
+var config = require('./config.json');
 var util = require("util");
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var remoteServer = 'http://localhost:3000';
-var port = 8888;
+var remoteServer = config.remoteServer;
+var port = config.port;
 var c_io = require('socket.io-client')(remoteServer);
 var eventsListening = [ '*'];
 var eventsEmitting = [ 'hello' , 'test'];
@@ -16,6 +17,10 @@ app.use(express.static(__dirname + '/public'));
 
 c_io.on('connect', function() {
     console.log('Connection to ' + remoteServer + ' established');
+});
+
+c_io.on('disconnect', function(){
+  console.log('Connection to ' + remoteServer + ' disconnected');
 });
 
 http.listen(port, function(){

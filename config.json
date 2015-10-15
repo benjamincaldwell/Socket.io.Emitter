@@ -1,0 +1,4 @@
+{
+  "port": 4000,
+  "remoteServer": "http://localhost:3146"
+}
